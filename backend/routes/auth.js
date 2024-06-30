@@ -15,7 +15,7 @@ const JWT_SECRET = "sarthakisdeveloper";
 // Create a user using : POST "/api/auth/createuser" . No login required
 router.post('/createuser', [
     body('name', 'Enter a valid name').isLength({ min: 3 }),
-    body('email', 'Enter a valid password').isEmail(),
+    body('email', 'Enter a valid email').isEmail(),
     body('password', 'Password must be atleast 5 characters').isLength({ min: 5 })
 ], async (req, res) => {
     // if there are errors, return bad request and the errors
@@ -46,16 +46,51 @@ router.post('/createuser', [
             }
         }
         const authToken = jwt.sign(data, JWT_SECRET);
-        res.json({authToken});
-        
+        res.json({ authToken });
+
 
     } catch (error) {
         console.error(error.message);
-        res.status(500).send('Some error occured');
+        res.status(500).send('Internal Server Error');
     }
-    // const user = User(req.body);
-    // user.save();
-    // res.json(req.body);
+})
+
+// Authenticate a user using : POST "/api/auth/createuser" . No login required
+router.post('/login', [
+    body('email', 'Enter a valid email').isEmail(),
+    body('password', 'Password cannot be blank').exists()
+], async (req, res) => {
+    // if there are errors, return bad request and the errors
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+        return res.status(400).json({ error: error.array() });
+    }
+
+    const {email, password} = req.body;
+    try {
+        let user = await User.findOne({ email });
+
+        if (user) {
+            return res.status(400).json({ error: 'Please enter correct credentials' });
+        }
+
+        const passCompare = await bcrypt.compare(password, user.password);
+        if (!passCompare) {
+            return res.status(400).json({ error: 'Please enter correct credentials' });
+        }
+
+        const payload = {
+            user: {
+                id: user.id
+            }
+        }
+        const authToken = jwt.sign(data, JWT_SECRET);
+        res.json({ authToken });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Internal Server Error');
+    }
 })
 
 module.exports = router;

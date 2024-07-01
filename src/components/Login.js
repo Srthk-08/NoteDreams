@@ -23,7 +23,7 @@ const Login = (props) => {
             navigate("/");
         }
         else {
-            props.showAlert('Invalid Credentials','danger');
+            props.showAlert('Invalid Details', 'warning');
         }
     }
 

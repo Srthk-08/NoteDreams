@@ -9,6 +9,8 @@ import Navbar from './components/Navbar';
 import About from './components/About';
 import NoteState from './context/notes/NoteState';
 import Alert from './components/Alert';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
 
 function App() {
   return (
@@ -22,6 +24,10 @@ function App() {
               <Route exact path="/" element={<Home />}>
               </Route>
               <Route exact path="/about" element={<About />}>
+              </Route>
+              <Route exact path="/login" element={<Login />}>
+              </Route>
+              <Route exact path="/signup" element={<SignUp />}>
               </Route>
             </Routes>
           </div>

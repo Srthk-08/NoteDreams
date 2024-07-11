@@ -2,15 +2,22 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import noteContext from '../context/notes/noteContext';
 import NoteItem from './NoteItem';
 import AddNote from './AddNote';
+import { useNavigate } from "react-router-dom";
 
-const Notes = () => {
+const Notes = (props) => {
     const context = useContext(noteContext);
     const { notes, getNotes, editNote } = context;
-
+    let navigate = useNavigate();
     useEffect(() => {
-        getNotes();
+        if (localStorage.getItem('token')) {
+            getNotes();
+        }
+        else {
+            navigate('/login');
+        }
+
         // eslint-disable-next-line
-    }, [])
+    }, [navigate])
 
     const updateNote = (currentNote) => {
         ref.current.click();
@@ -24,6 +31,7 @@ const Notes = () => {
     const handleClick = (e) => {
         console.log("Updating the note....", note);
         editNote(note.id, note.etitle, note.edescription, note.etag);
+        props.showAlert('Note updated successfully', 'success');
         refClose.current.click();
     }
     const onChange = (e) => {
@@ -32,7 +40,7 @@ const Notes = () => {
 
     return (
         <>
-            <AddNote />
+            <AddNote showAlert={props.showAlert} />
             <button ref={ref} type="button" className="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Launch demo modal
             </button>
@@ -47,7 +55,7 @@ const Notes = () => {
                             <form className='my-3'>
                                 <div className="mb-3">
                                     <label htmlFor="title" className="form-label" >Title</label>
-                                    <input value={note.etitle} type="text" className="form-control" id="etitle" name="etitle" aria-describedby="emailHelp" onChange={onChange} minLength={5} required/>
+                                    <input value={note.etitle} type="text" className="form-control" id="etitle" name="etitle" aria-describedby="emailHelp" onChange={onChange} minLength={5} required />
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="description" className="form-label">Description</label>
@@ -55,7 +63,7 @@ const Notes = () => {
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="tag" className="form-label">Tag</label>
-                                    <input value={note.etag} type="text" className="form-control" id="etag" name="etag" onChange={onChange} minLength={5} required/>
+                                    <input value={note.etag} type="text" className="form-control" id="etag" name="etag" onChange={onChange} minLength={5} required />
                                 </div>
                             </form>
                         </div>
@@ -68,12 +76,15 @@ const Notes = () => {
             </div>
             <div className="container row my-3">
                 <h3>Your Notes</h3>
-                < div className="container mx-2">
-                    {notes.length === 0 && 'No Notes To Display '}
-                </div>
-                {notes.map((note) => {
-                    return <NoteItem key={note._id} updateNote={updateNote} note={note} />
-                })}
+
+                {Array.isArray(notes) && notes.length > 0 ?
+                    (notes.map((note) => {
+                        return <NoteItem key={note._id} updateNote={updateNote} note={note} showAlert={props.showAlert} />
+                    })) :
+                    < div className="container mx-2">
+                        No Notes To Display
+                    </div>
+                }
             </div >
         </>
     )
